@@ -1,8 +1,4 @@
 # andrautomation
 
-a bunch of scripts for setting up an Android phone
-
-## prerequisites
-
-- USB debugging *has* to be enabled
-- Bootloader should be unlocked if possible
+- flashing a new ROM on an android phone is only tedious cuz ur repeating the same commands over and over again
+- so i wrote these scriptoids to fix that
