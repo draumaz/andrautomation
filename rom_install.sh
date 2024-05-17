@@ -28,6 +28,7 @@ fastboot reboot-recovery
 printf "\n[press enter to apply update from adb]: "
 read
 
+# Apply ROM to target device
 adb sideload "${1}"
 
 rm -fv *.bin *.img

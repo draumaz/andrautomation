@@ -16,17 +16,19 @@ test -e "./Magisk-v${MAGISKVER}.apk" || {
   curl -fLO "${MAGISKURL}"
 }
 
+# Retrieve boot.img for currently running ROM for patching
 unzip "${1}" payload.bin || exit 1
-
 payload-dumper-go -partitions boot -output "${PWD}" payload.bin
-
 adb push "boot.img" "/sdcard/Download/"
+
+# Install and open Magisk on target device
 adb install "`find . -name \*Magisk\*apk\* | tail -1`"
 adb shell "monkey -p com.topjohnwu.magisk 1"
 
 printf "\npatch /sdcard/Download/boot.img in Magisk and press enter.\n"
 read
 
+# ls -atr sorts newest at the bottom; tail that to get the right file
 MAGISKIMG="`adb shell ls -atr /sdcard/Download | grep -i magisk | tail -1`"
 
 adb pull "/sdcard/Download/${MAGISKIMG}"
