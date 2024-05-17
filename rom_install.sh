@@ -1,5 +1,8 @@
 #!/bin/sh -e
 
+# an automated rom installer
+# required: unzip payload-dumper-go adb fastboot
+
 case "${1}" in "")
   printf "${0} [path to rom]\n"
   exit ;;
