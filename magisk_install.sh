@@ -8,10 +8,12 @@ case "${1}" in "")
 MAGISKVER="27.0"
 MAGISKURL="https://github.com/topjohnwu/Magisk/releases/download/v${MAGISKVER}/Magisk-v${MAGISKVER}.apk"
 
-printf "downloading magisk...\n"
-curl -fLO "${MAGISKURL}"
+test -e "./Magisk-v${MAGISKVER}.apk" || {
+  printf "downloading magisk...\n"
+  curl -fLO "${MAGISKURL}"
+}
 
-unzip "${1}" payload.bin
+unzip "${1}" payload.bin || exit 1
 
 payload-dumper-go -partitions boot -output "${PWD}" payload.bin
 
