@@ -1,7 +1,8 @@
 #!/bin/sh -e
 
 case "${1}" in "")
-  printf "${0} [path to rom]\n" ;;
+  printf "${0} [path to rom]\n"
+  exit ;;
 esac
 
 unzip "${1}" payload.bin

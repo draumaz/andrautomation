@@ -1,8 +1,9 @@
 #!/bin/sh -e
 
 case "${1}" in "")
-  printf "${0} [path to rom]\n" ;;
-esac
+  printf "${0} [path to rom]\n"
+  exit
+;; esac
 
 MAGISKVER="27.0"
 MAGISKURL="https://github.com/topjohnwu/Magisk/releases/download/v${MAGISKVER}/Magisk-v${MAGISKVER}.apk"
