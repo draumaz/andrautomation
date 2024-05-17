@@ -2,6 +2,7 @@
 
 # an automated ROM installer
 # runtime dependencies: adb, fastboot, payload-dumper-go, unzip
+# device requirements: bootloader unlocked, USB debugging enabled
 
 case "${1}" in "")
   printf "${0} [path to rom]\n"

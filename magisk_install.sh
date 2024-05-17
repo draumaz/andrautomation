@@ -2,6 +2,7 @@
 
 # an automated magisk installer
 # runtime dependencies: adb, fastboot, payload-dumper-go, unzip
+# device requirements: unlocked bootloader, USB debugging enabled
 
 case "${1}" in "")
   printf "${0} [path to rom]\n"
