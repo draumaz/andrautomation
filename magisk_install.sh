@@ -27,7 +27,7 @@ read
 MAGISKIMG="`adb shell ls -atr /sdcard/Download | grep -i magisk | tail -1`"
 
 adb pull "/sdcard/Download/${MAGISKIMG}"
-adb shell "rm -f /sdcard/Download/${MAGISKIMG}"
+adb shell "rm -f /sdcard/Download/${MAGISKIMG} /sdcard/Download/boot.img"
 adb reboot bootloader
 
 for PART in a b; do fastboot flash boot_$PART "${MAGISKIMG}"; done
