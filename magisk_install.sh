@@ -1,7 +1,7 @@
 #!/bin/sh -e
 
 # an automated magisk installer
-# required: unzip, payload-dumper-go, adb, fastboot
+# runtime dependencies: adb, fastboot, payload-dumper-go, unzip
 
 case "${1}" in "")
   printf "${0} [path to rom]\n"
