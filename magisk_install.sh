@@ -41,7 +41,7 @@ adb pull "/sdcard/Download/${MAGISKIMG}"
 adb shell "rm -f /sdcard/Download/${MAGISKIMG} /sdcard/Download/${IMG}.img"
 adb reboot bootloader
 
-for PART in a b; do fastboot flash boot_$PART "${MAGISKIMG}"; done
+for PART in a b; do fastboot flash "${IMG}_${PART}" "${MAGISKIMG}"; done
 
 rm -fv *.{img,apk,bin}
 
