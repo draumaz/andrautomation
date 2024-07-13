@@ -43,6 +43,6 @@ adb reboot bootloader
 
 for PART in a b; do fastboot flash "${IMG}_${PART}" "${MAGISKIMG}"; done
 
-rm -fv *.{img,apk,bin}
-
 fastboot reboot
+
+rm -fv *.{img,apk,bin}
