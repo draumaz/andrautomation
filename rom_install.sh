@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/bash -e
 
 # an automated ROM installer
 # runtime dependencies: adb, fastboot, payload-dumper-go, unzip
@@ -18,7 +18,12 @@ payload-dumper-go \
 
 rm -fv payload.bin
 
-fastboot -w
+if adb shell ':' > /dev/null 2>&1; then
+  echo "rebooting to bootloader"
+  adb reboot bootloader && fastboot -w
+else
+  fastboot -w
+fi
 
 for PART in boot vendor_boot dtbo; do
   fastboot flash "${PART}" "${PART}.img"
@@ -30,6 +35,6 @@ printf "\n[press enter to apply update from adb]: "
 read
 
 # Apply ROM to target device
-adb sideload "${1}"
+until adb sideload "${1}"; do sleep 5; done
 
 rm -fv *.bin *.img
