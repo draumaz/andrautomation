@@ -13,12 +13,9 @@ case "${1}" in
   *) test -e "${1}" || { echo "${1} not found" && exit 1; } ;;
 esac
 
-MAGISKVER="27.0"
-MAGISKURL="https://github.com/topjohnwu/Magisk/releases/download/v${MAGISKVER}/Magisk-v${MAGISKVER}.apk"
-
 test -e "./Magisk-v${MAGISKVER}.apk" || {
   printf "downloading magisk...\n"
-  curl -fLO "${MAGISKURL}"
+  curl -fLO https://api.github.com/repos/topjohnwu/Magisk/releases/latest | grep 'browser_download_url' | cut -d\" -f4
 }
 
 # Retrieve $IMG.img for currently running ROM for patching
