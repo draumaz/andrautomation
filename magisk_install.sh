@@ -4,14 +4,13 @@
 # runtime dependencies: adb, fastboot, payload-dumper-go, unzip
 # device requirements: unlocked bootloader, USB debugging enabled
 
-case "${IMG}" in "")
-  printf "export IMG variable to appropriate .img file for rooting\n"
-  exit 1 ;;
-esac
+if adb shell "test -e /dev/block/by-name/init_boot_a"; then
+  IMG="init_boot"; else IMG="boot"
+fi
 
-case "${1}" in "")
-  printf "${0} [path to rom]\n"
-  exit 1 ;;
+case "${1}" in
+  "") printf "${0} [path to rom]\n"; exit 1 ;; 
+  *) test -e "${1}" || { echo "${1} not found" && exit 1; } ;;
 esac
 
 MAGISKVER="27.0"
