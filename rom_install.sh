@@ -31,9 +31,6 @@ done
 
 fastboot reboot-recovery
 
-printf "\n[press enter to apply update from adb]: "
-read
-
 # Apply ROM to target device
 until adb sideload "${1}"; do sleep 5; done
 
