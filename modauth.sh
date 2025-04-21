@@ -1,28 +1,24 @@
 #!/bin/sh -e
 
-case "${name}" in
-  "") printf "name: "; read -r name ;;
-  *) ;;
-esac
+if ! which zip > /dev/null 2>&1; then
+  echo "[$0] zip missing, quitting"
+  exit 1
+fi
 
-case "${version}" in
-  "") printf "version: "; read -r version ;;
-  *) ;;
+case "${name}" in "")
+  read -p 'name: ' name ;;
 esac
-
-case "${versionCode}" in
-  "") printf "versionCode: "; read -r versionCode ;;
-  *) ;;
+case "${version}" in "")
+  read -p 'version: ' version ;;
 esac
-
-case "${author}" in
-  "") printf "author: "; read -r author ;;
-  *) ;;
+case "${versionCode}" in "")
+  read -p 'versionCode: ' versionCode ;;
 esac
-
-case "${description}" in
-  "") printf "description: "; read -r description ;;
-  *) ;;
+case "${author}" in "")
+  read -p 'author: ' author ;;
+esac
+case "${description}" in "")
+  read -p 'description: ' description ;;
 esac
 
 cat << EOF
@@ -101,5 +97,4 @@ mv -f service_real.sh service.sh
 
 zip -r "${name}-${versionCode}.zip" service.sh module.prop META-INF
 
-echo; echo "all done! resultant module zip:"
-ls -l "${name}-${versionCode}.zip"
+echo; echo "all done! module zip: $PWD/${name}-${versionCode}.zip"
