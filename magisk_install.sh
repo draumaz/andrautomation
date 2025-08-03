@@ -13,7 +13,7 @@ case "${1}" in
   *) test -e "${1}" || { echo "${1} not found" && exit 1; } ;;
 esac
 
-MAGISKVER="27.0"
+MAGISKVER="29.0"
 MAGISKURL="https://github.com/topjohnwu/Magisk/releases/download/v${MAGISKVER}/Magisk-v${MAGISKVER}.apk"
 
 test -e "./Magisk-v${MAGISKVER}.apk" || {
