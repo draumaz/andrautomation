@@ -1,37 +1,62 @@
 #!/bin/bash -e
 
 # an automated ROM installer
-# runtime dependencies: adb, fastboot, payload-dumper-go, unzip
+# runtime dependencies: adb, fastboot, usbutils, payload-dumper-go, unzip
 # device requirements: bootloader unlocked, USB debugging enabled
+
+TMPA="/tmp/rom_installer"
+
+await_fastboot() {
+  until lsusb | grep fastboot > /dev/null 2>&1; do
+    sleep 0.5
+  done
+}
 
 case "${1}" in "")
   printf "${0} [path to rom]\n"
   exit ;;
 esac
 
-unzip "${1}" payload.bin
+if ! mkdir -pv $TMPA; then
+  echo "can't write to ${TMPA}, exiting"
+  exit 1
+fi
+unzip "${1}" -d "${TMPA}" payload.bin
 
 payload-dumper-go \
   -partitions boot,vendor_boot,dtbo \
-  -output "${PWD}" \
-    payload.bin
+  -output "${TMPA}/partitions" \
+    "${TMPA}/payload.bin"
 
-rm -fv payload.bin
-
+# TODO: Is attaining shell access necessary?
 if adb shell ':' > /dev/null 2>&1; then
   echo "rebooting to bootloader"
-  adb reboot bootloader && fastboot -w
-else
-  fastboot -w
+  adb reboot bootloader
 fi
 
+await_fastboot
+
+# Format user data
+fastboot -w
+
+# TODO: Are different images needed for different devices?
 for PART in boot vendor_boot dtbo; do
-  fastboot flash "${PART}" "${PART}.img"
+  fastboot flash "${PART}" "${TMPA}/partitions/${PART}.img"
 done
 
 fastboot reboot-recovery
+echo "Rebooting to recovery."
+await_fastboot
 
-# Apply ROM to target device
-until adb sideload "${1}"; do sleep 5; done
+cat << EOF
+On your device:
 
-rm -fv *.bin *.img
+Apply update
+-> Apply from ADB
+EOF
+printf "\nthen, press enter. "; read
+adb sideload "${1}"
+
+case "${2}" in -d|--dirty) ;; *)
+  rm -frv "${TMPA}" ;;
+esac
