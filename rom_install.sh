@@ -12,17 +12,17 @@ await_fastboot() {
   done
 }
 
+if ! mkdir -pv "${TMPA}"; then
+  echo "can't write to ${TMPA}, exiting."
+  exit 1
+fi
+
 case "${1}" in "")
   printf "${0} [path to rom]\n"
   exit ;;
 esac
 
-if ! mkdir -pv $TMPA; then
-  echo "can't write to ${TMPA}, exiting"
-  exit 1
-fi
 unzip "${1}" -d "${TMPA}" payload.bin
-
 payload-dumper-go \
   -partitions boot,vendor_boot,dtbo \
   -output "${TMPA}/partitions" \
@@ -44,17 +44,23 @@ for PART in boot vendor_boot dtbo; do
   fastboot flash "${PART}" "${TMPA}/partitions/${PART}.img"
 done
 
-fastboot reboot-recovery
+fastboot reboot-recovery > /dev/null 2>&1
 echo "Rebooting to recovery."
 await_fastboot
 
 cat << EOF
+
+===================
 On your device:
 
-Apply update
--> Apply from ADB
+-> Apply update
+  -> Apply from ADB
+===================
+
 EOF
-printf "\nthen, press enter. "; read
+
+until adb devices | grep sideload > /dev/null 2>&1; do
+  sleep 0.5; done
 adb sideload "${1}"
 
 case "${2}" in -d|--dirty) ;; *)
