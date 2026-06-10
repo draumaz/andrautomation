@@ -58,7 +58,7 @@ On your device:
 EOF
 
 while true; do
-  case `adb devices` in *sideload*) adb sideload "${1}" *) sleep 1 ;; esac
+  case `adb devices` in *sideload*) adb sideload "${1}"; break ;; *) sleep 1 ;; esac
 done
 
 case "${2}" in -d|--dirty) ;; *)
