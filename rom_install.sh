@@ -1,16 +1,23 @@
 #!/bin/bash -e
 
 # an automated ROM installer
-# runtime dependencies: adb, fastboot, usbutils, payload-dumper-go, unzip
+# runtime dependencies: adb, fastboot, payload-dumper-go, unzip
 # device requirements: bootloader unlocked, USB debugging enabled
 
-TMPA="/tmp/rom_installer"
-
-await_fastboot() {
-  until lsusb | grep fastboot > /dev/null 2>&1; do
-    sleep 0.5
+await_mode() {
+  while true; do
+    case ${1} in
+      fastboot)
+        case `fastboot devices` in *fastboot) break ;; esac ;;
+      *)
+        case `adb devices | tail -n +2 | head -1 | tr '	' '\n' | tail -1` in *${1}) break ;; esac ;;
+    esac
+    sleep 1
   done
 }
+
+TMPA="/tmp/rom_installer"
+PART_LIST="boot dtbo vendor_boot vendor_kernel_boot"
 
 if ! mkdir -pv "${TMPA}"; then
   echo "can't write to ${TMPA}, exiting."
@@ -18,35 +25,26 @@ if ! mkdir -pv "${TMPA}"; then
 fi
 
 case "${1}" in "")
-  printf "${0} [path to rom]\n"
-  exit ;;
-esac
+  printf "${0} [path to rom]\n"; exit 1
+;; esac
 
 unzip "${1}" -d "${TMPA}" payload.bin
-payload-dumper-go \
-  -partitions boot,vendor_boot,dtbo \
+payload-dumper-go -partitions `echo ${PART_LIST} | tr ' ' ','` \
   -output "${TMPA}/partitions" \
     "${TMPA}/payload.bin"
 
-# TODO: Is attaining shell access necessary?
-if adb shell ':' > /dev/null 2>&1; then
+case `adb devices | tail -n +2` in *device)
   echo "rebooting to bootloader"
   adb reboot bootloader
-fi
+;; esac
 
-await_fastboot
+await_mode fastboot
 
-# Format user data
 fastboot -w
+for PART in ${PART_LIST}; do fastboot flash "${PART}" "${TMPA}/partitions/${PART}.img"; done
+fastboot reboot-recovery > /dev/null 2>&1; echo "Rebooting to recovery."
 
-# TODO: Are different images needed for different devices?
-for PART in boot vendor_boot dtbo; do
-  fastboot flash "${PART}" "${TMPA}/partitions/${PART}.img"
-done
-
-fastboot reboot-recovery > /dev/null 2>&1
-echo "Rebooting to recovery."
-await_fastboot
+await_mode recovery
 
 cat << EOF
 
@@ -59,9 +57,10 @@ On your device:
 
 EOF
 
-until adb devices | grep sideload > /dev/null 2>&1; do
-  sleep 0.5; done
-adb sideload "${1}"
+while true; do
+  case `adb devices` in *sideload*) adb sideload "${1}" ;; esac
+  sleep 1
+done
 
 case "${2}" in -d|--dirty) ;; *)
   rm -frv "${TMPA}" ;;
